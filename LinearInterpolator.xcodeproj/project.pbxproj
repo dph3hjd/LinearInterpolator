@@ -6,10 +6,19 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXFileReference section */
+		D8A6C4981608E74300BEB25C /* TestLinearInterpolator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestLinearInterpolator.cpp; sourceTree = "<group>"; };
+		D8A6C4991608E74300BEB25C /* LinearInterpolator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LinearInterpolator.h; sourceTree = "<group>"; };
+		D8A6C49A1608F70300BEB25C /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
+/* End PBXFileReference section */
+
 /* Begin PBXGroup section */
 		D8A6C48B1608E71F00BEB25C = {
 			isa = PBXGroup;
 			children = (
+				D8A6C49A1608F70300BEB25C /* Makefile */,
+				D8A6C4981608E74300BEB25C /* TestLinearInterpolator.cpp */,
+				D8A6C4991608E74300BEB25C /* LinearInterpolator.h */,
 			);
 			sourceTree = "<group>";
 		};
