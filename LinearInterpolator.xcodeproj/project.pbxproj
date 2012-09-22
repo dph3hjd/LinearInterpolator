@@ -8,7 +8,7 @@
 
 /* Begin PBXFileReference section */
 		D8A6C4981608E74300BEB25C /* TestLinearInterpolator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestLinearInterpolator.cpp; sourceTree = "<group>"; };
-		D8A6C4991608E74300BEB25C /* LinearInterpolator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LinearInterpolator.h; sourceTree = "<group>"; };
+		D8A6C4991608E74300BEB25C /* LinearInterpolator.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = LinearInterpolator.h; sourceTree = "<group>"; };
 		D8A6C49A1608F70300BEB25C /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.simpleColoring; };
 /* End PBXFileReference section */
 
@@ -151,6 +151,7 @@
 				D8A6C4971608E72000BEB25C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
