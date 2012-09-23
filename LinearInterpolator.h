@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <iterator>
 #include <map>
 
 #pragma mark - InterpolatedData template
@@ -51,7 +52,11 @@ struct InterpolatedData<1, NumericT> {
 	typedef NestedT ReturnT;
 	
     ReturnT & operator[](NumericT const & indexKey){
-        return m_Data[indexKey];
+		typename StorageT::iterator it;
+		for(it = m_Data.begin(); it != m_Data.end(); ++it){
+			// std::cout<< it->first << " => " << it->second << std::endl;
+		}
+		return m_Data[indexKey];
     }
 	
 	StorageT const & storage() const {
@@ -72,9 +77,9 @@ struct InterpolatedDataTraverser {
 	typedef InterpolatedData<Dimension, NumericT> DataT;
 	
 	static NumericT const & at(CoordinatesT const & coordinates, DataT & data){
-		std::cout << "Selecting coordinate " << (Dimensionality - Dimension) << " = " << coordinates[Dimensionality - Dimension] << " for dimension " << (Dimensionality - Dimension + 1) << std::endl;
+		// std::cout<< "Selecting coordinate " << (Dimensionality - Dimension) << " = " << coordinates[Dimensionality - Dimension] << " for dimension " << (Dimensionality - Dimension + 1) << std::endl;
 		
-		return InterpolatedDataTraverser<Dimension-1u, NumericT, Dimensionality>::at(coordinates, data[coordinates[Dimensionality - Dimension]]);
+		return InterpolatedDataTraverser<Dimension-1u, NumericT, Dimensionality>::at(coordinates, data[coordinates[Dimension-1]]);
 	}
 	
 };
@@ -87,9 +92,9 @@ struct InterpolatedDataTraverser <1u, NumericT, Dimensionality>{
 	
 	static NumericT const & at(CoordinatesT const & coordinates, DataT & data){
 		
-		std::cout << "Selecting coordinate " << (Dimensionality-1) << " = " << coordinates[Dimensionality-1] << " for dimension " << (Dimensionality) << std::endl;
-		std::cout << "Returning " << data[coordinates[Dimensionality-1]] << std::endl;
-		return data[coordinates[Dimensionality-1]];
+		// std::cout<< "Selecting coordinate " << (Dimensionality-1) << " = " << coordinates[Dimensionality-1] << " for dimension " << (Dimensionality) << std::endl;
+		// std::cout<< "Returning " << data[coordinates[Dimensionality-1]] << std::endl;
+		return data[coordinates[0]];
 	}
 	
 };
@@ -103,7 +108,7 @@ struct CoordinateBracketer {
 	
 	static bool bracketCoordinates(typename InterpolatedData<NestedDimensionality, NumericT>::StorageT data, BracketsT & bracketCoords, CoordinatesT const & targetCoordinates){
 		
-		std::cout << "bracketCoordinates: Dimension = " << NestedDimensionality << ", " << std::flush;
+		// std::cout<< "bracketCoordinates: Dimension = " << NestedDimensionality << ", " << std::flush;
 		
 		// find the bracketing grid point coordinates and values
 		typedef typename InterpolatedData<NestedDimensionality, NumericT>::SelfT NestedDataT;
@@ -118,13 +123,14 @@ struct CoordinateBracketer {
 			if(highIt != data.end()){
 				bracketCoords[1][NestedDimensionality-1] = highIt->first;
 				
-				std::cout << targetCoordinates[NestedDimensionality-1] << " in range [" << bracketCoords[0][NestedDimensionality-1] << ", " << bracketCoords[1][NestedDimensionality-1] << "]" << std::endl;
+				// std::cout<< targetCoordinates[NestedDimensionality-1] << " in range [" << bracketCoords[0][NestedDimensionality-1] << ", " << bracketCoords[1][NestedDimensionality-1] << "]" << std::endl;
 				
 				// recursive call for nested dimension
 				return CoordinateBracketer<(NestedDimensionality - 1u), NumericT, Dimensionality>::bracketCoordinates(data.begin()->second.storage(), bracketCoords, targetCoordinates);
 			}
 		}
-		std::cout << "Failed!" << std::endl;
+		// std::cout<< "Failed for coordinate " << targetCoordinates[NestedDimensionality -1] << "!" << std::endl;
+
 		return false;
 	}
 };
@@ -137,7 +143,7 @@ struct CoordinateBracketer<1u, NumericT, Dimensionality>{
 	
 	static bool bracketCoordinates(typename InterpolatedData<1u, NumericT>::StorageT data, BracketsT & bracketCoords, CoordinatesT const & targetCoordinates){
 		
-		std::cout << "bracketCoordinates: Dimension = " << 1 << ", " << std::flush;
+		// std::cout<< "bracketCoordinates: Dimension = " << 1 << ", " << std::flush;
 		
 		// find the bracketing grid point coordinates and values
 		typedef typename InterpolatedData<1u, NumericT>::SelfT NestedDataT;
@@ -151,12 +157,12 @@ struct CoordinateBracketer<1u, NumericT, Dimensionality>{
 			typename NestedDataT::StorageT::const_iterator highIt = data.upper_bound(targetCoordinates[0]);
 			if(highIt != data.end()){
 				bracketCoords[1][0] = highIt->first;
-				std::cout << targetCoordinates[0] << " in range [" << bracketCoords[0][0] << ", " << bracketCoords[1][0] << "]" << std::endl;
+				// std::cout<< targetCoordinates[0] << " in range [" << bracketCoords[0][0] << ", " << bracketCoords[1][0] << "]" << std::endl;
 				// successfully found bracket coordinates for all dimensions
 				return true;
 			}
 		}
-		std::cout << "Failed!" << std::endl;
+		// std::cout<< "Failed for coordinate " << targetCoordinates[0] << "!" << std::endl;
 		return false;
 	}
 };
@@ -224,21 +230,21 @@ struct InterpolatorImpl<1, NumericT, Dimensionality> {
 		
 		if(CoordinateBracketer<Dimensionality, NumericT, Dimensionality>::bracketCoordinates(m_Data.storage(), bracketCoords, m_Coordinates)){
 			
-			std::cout << "Interpolating..." << std::endl;
+			// std::cout<< "Interpolating..." << std::endl;
 			
 			// get the function value (Vl) at the low coordinate (Xl).
 			NumericT const & lowVal = InterpolatedDataTraverser<Dimensionality, NumericT, Dimensionality>::at(bracketCoords[0], m_Data);
 			
 			// initialise the interpolated result
 			NumericT interpolatedVal(lowVal);
-			std::cout << "Initial value: " << interpolatedVal << std::endl;
+			// std::cout<< "Initial value: " << interpolatedVal << std::endl;
 			
 			// loop over dimensions
 			for(int iDim = 0; iDim < Dimensionality; iDim++){
 				
-				std::cout << "Processing dimension " << iDim << std::endl;
+				// std::cout<< "Processing dimension " << iDim << std::endl;
 
-				std::cout << "Target coordinate: " << m_Coordinates[iDim] << std::endl;
+				// std::cout<< "Target coordinate: " << m_Coordinates[iDim] << std::endl;
 
 				// get a coordinate (Xh) which has the low bracket values for all but this dimension and the high bracket value for this dimension
 				CoordinatesT highCoord;
@@ -248,20 +254,20 @@ struct InterpolatorImpl<1, NumericT, Dimensionality> {
 				// Get the corresponding function value (Vh) at this coordinate.
 				NumericT const & highVal = InterpolatedDataTraverser<Dimensionality, NumericT, Dimensionality>::at(highCoord, m_Data);
 				
-				std::cout << "Coordinate bounds: [" << bracketCoords[0][iDim] << ", " << highCoord[iDim] << "]" << std::endl;
-				std::cout << "Value bounds: [" << lowVal << ", " << highVal << "]" << std::endl;
+				// std::cout<< "Coordinate bounds: [" << bracketCoords[0][iDim] << ", " << highCoord[iDim] << "]" << std::endl;
+				// std::cout<< "Value bounds: [" << lowVal << ", " << highVal << "]" << std::endl;
 				
 				// calculate derivative i.e. dV/dx = (Vh - Vl)/(Xh -Xl)
 				NumericT derivative = (highVal - lowVal)/(highCoord[iDim] - bracketCoords[0][iDim]);
-				std::cout << "Derivative: " << derivative << std::endl;
+				// std::cout<< "Derivative: " << derivative << std::endl;
 				
 				// calculate coordinate delta i.e. Dx = (Xc - Xl)
 				NumericT cDelta = m_Coordinates[iDim] - bracketCoords[0][iDim];
-				std::cout << "Coordinate delta: " << cDelta << std::endl;
+				// std::cout<< "Coordinate delta: " << cDelta << std::endl;
 
 				// calculate value delta i.e. DV = (dV/dx)Dx
 				NumericT vDelta = derivative*cDelta;
-				std::cout << "Value delta: " << vDelta << std::endl;
+				// std::cout<< "Value delta: " << vDelta << std::endl;
 
 				// calculate interpolated value i.e Vc = Vl + sum_over_dimensions(DV)
 				interpolatedVal += vDelta;
